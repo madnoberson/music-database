@@ -3,7 +3,7 @@ from pydantic import BaseModel
 
 class Token(BaseModel):
     """
-        Схема с информацией о токене
+        Информация о токене
     """
 
     access_token: str

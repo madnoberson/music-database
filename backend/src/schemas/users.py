@@ -5,7 +5,7 @@ from pydantic import BaseModel
 
 class BasicUser(BaseModel):
     """
-        Схема с базовой информацией о пользователе
+        Базовая информация о пользователе
     """
 
     id: int
@@ -14,15 +14,18 @@ class BasicUser(BaseModel):
     is_owner: Optional[bool] = False
 
 
-class User(BasicUser):
+class User(BaseModel):
     """
-        Схема с информацией о пользователе
+        Информация о пользователе
     """
+
+    id: int
+    name: str
 
 
 class UserIn(BaseModel):
     """
-        Схема для ввода информации о пользователе
+        Ввод информации о пользователе
     """
 
     name: str
@@ -31,7 +34,7 @@ class UserIn(BaseModel):
 
 class UserOut(BaseModel):
     """
-        Схема для вывода информации о пользователе
+        Вывод информации о пользователе
     """
 
     user: User
