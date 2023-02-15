@@ -1,4 +1,4 @@
-from fastapi import Depends, APIRouter
+from fastapi import APIRouter, Depends
 
 from ..schemas.users import UserIn
 from ..schemas.auth import Token
@@ -17,7 +17,7 @@ async def sign_up(
     auth: AuthService = Depends()
 ) -> Token:
     """
-        Регестрирует пользователя и возвращает access token
+        Регестрирует пользователя и возвращает `access token`
     """
 
     return await auth.sign_up(
@@ -34,7 +34,7 @@ async def sign_in(
     auth: AuthService = Depends()
 ) -> Token:
     """
-        Авторизиует пользователя и возвращает access token
+        Авторизиует пользователя и возвращает `access token`
     """
 
     return await auth.sign_in(

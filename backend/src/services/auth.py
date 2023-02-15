@@ -87,7 +87,7 @@ class AuthService:
         if not user:
             raise exception
         
-        user = dict(user)
+        user = dict(user).pop('password')
 
         if not self.verify_password(
             plain_password=user_data.password,
