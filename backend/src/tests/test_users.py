@@ -3,8 +3,6 @@ import pytest
 from httpx import AsyncClient
 from .config import client, anyio_backend
 
-from ..services.auth import AuthService
-
 
 @pytest.mark.anyio
 async def test_get_basic_user(client: AsyncClient):
@@ -26,6 +24,8 @@ async def test_get_your_basic_user(client: AsyncClient):
             "password": "testpassword"
         }
     )
+
+    assert response.status_code == 200
 
     response = await client.get(
         url='/users/1/basic/',
