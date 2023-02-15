@@ -16,7 +16,7 @@ async def get_db_conn() -> Connection:
 async def create_tables(
     db_name: str
 ) -> None:
-    db_conn: Connection = await asyncpg.connect(
+    db_conn = await asyncpg.connect(
         f"postgresql://postgres:1234@localhost/{db_name}"
     )
     
@@ -30,6 +30,20 @@ async def create_tables(
                 );
             """
         )
+
+
+async def delete_tables(
+    db_name: str
+) -> None:
+    db_conn = await asyncpg.connect(
+        f"postgresql://postgres:1234@localhost/{db_name}"
+    )
+
+    await db_conn.execute(
+        """
+            DROP TABLE users;
+        """
+    )
 
 
 if __name__ == "__main__":
