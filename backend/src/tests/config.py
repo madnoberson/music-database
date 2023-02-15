@@ -1,5 +1,6 @@
 import pytest
 from httpx import AsyncClient
+from asyncpg import UndefinedTableError
 
 from ..app import app
 from ..services.auth import AuthService
@@ -7,7 +8,10 @@ from ..database import create_tables, delete_tables
 
 
 async def refresh_test_db():
-    await delete_tables('test_music')
+    try:
+        await delete_tables('test_music')
+    except UndefinedTableError:
+        pass
     await create_tables('test_music')
 
 

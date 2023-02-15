@@ -11,8 +11,10 @@ async def test_create_track(client: AsyncClient):
     }
 
     track_out = {
-        "id": 1,
-        "name": "heroes"
+        "track": {
+            "id": 1,
+            "name": "heroes"
+        }
     }
 
     response = await client.post(
@@ -21,24 +23,25 @@ async def test_create_track(client: AsyncClient):
     )
 
     assert response.status_code == 200
+
+    print(response.json(), track_out)
+
     assert response.json() == track_out
 
 
 @pytest.mark.anyio
 async def test_get_basic_track(client: AsyncClient):
-    params = {
-        "track_id": 1
-    }
 
     track_out = {
         "id": 1,
         "name": "heroes"
     }
 
-    response = await client.post(
-        url='/tracks/',
-        params=params
+    response = await client.get(
+        url='/tracks/1/basic/',
     )
+
+    print(response.json(), track_out)
 
     assert response.status_code == 200
     assert response.json() == track_out
@@ -46,19 +49,20 @@ async def test_get_basic_track(client: AsyncClient):
 
 @pytest.mark.anyio
 async def test_get_track(client: AsyncClient):
-    params = {
-        "track_id": 1
-    }
 
     track_out = {
-        "id": 1,
-        "name": "heroes"
+        "track": {
+            "id": 1,
+            "name": "heroes"
+        }
     }
 
-    response = await client.post(
-        url='/tracks/',
-        params=params
+    response = await client.get(
+        url='/tracks/1/',
     )
 
     assert response.status_code == 200
+
+    print(response.json(), track_out)
+
     assert response.json() == track_out

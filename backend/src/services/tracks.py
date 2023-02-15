@@ -32,8 +32,8 @@ class TracksService:
 
         track = await self.db_conn.fetchrow(
             f"""
-                INSERT INTO tracks name
-                VALUES {create_track.name}
+                INSERT INTO tracks (name)
+                VALUES ('{create_track.name}')
                 RETURNING id, name
             """
         )

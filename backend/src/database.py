@@ -28,6 +28,10 @@ async def create_tables(
                     name VARCHAR(64) NOT NULL UNIQUE,
                     password TEXT NOT NULL
                 );
+                CREATE TABLE IF NOT EXISTS tracks (
+                    id SERIAL PRIMARY KEY,
+                    name VARCHAR(128) NOT NULL
+                )
             """
         )
 
@@ -41,8 +45,8 @@ async def delete_tables(
 
     await db_conn.execute(
         """
-            DROP TABLE IF EXISTS users CASCADE;
-            DROP SEQUENCE IF EXISTS users CASCADE;
+            DROP TABLE IF EXISTS users, tracks CASCADE;
+            DROP SEQUENCE IF EXISTS users, tracks CASCADE;
         """
     )
 
