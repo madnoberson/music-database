@@ -3,7 +3,7 @@ from datetime import datetime, timedelta
 from fastapi import Depends, HTTPException
 from fastapi.security import OAuth2PasswordBearer
 from pydantic import ValidationError
-from asyncpg import Connection
+from asyncpg import Connection, UniqueViolationError
 from jose import jwt, JWTError
 from passlib.hash import bcrypt
 
@@ -53,13 +53,17 @@ class AuthService:
             plain_password=create_user.password
         )
         
-        user = await self.db_conn.fetchrow(
-            f"""
-                INSERT INTO users (name, password)
-                VALUES ({create_user.name}, {create_user.password})
-                RETURNING id, name
-            """
-        )
+        try:
+            user = await self.db_conn.fetchrow(
+                f"""
+                    INSERT INTO users (name, password)
+                    VALUES ('{create_user.name}', '{hashed_password}')
+                    RETURNING id, name
+                """
+            )
+        except UniqueViolationError:
+            raise HTTPException(409)    
+    
 
         return self.create_token(dict(user))
     
@@ -80,7 +84,7 @@ class AuthService:
         user = await self.db_conn.fetchrow(
             f"""
                 SELECT id, name, password FROM users
-                WHERE name = {user_data.name}
+                WHERE name = '{user_data.name}'
             """
         )
 
@@ -121,10 +125,12 @@ class AuthService:
         token = jwt.encode(
             claims=payload,
             key=settings.jwt_secret,
-            algorithm=[settings.jwt_algorithm]
+            algorithm=settings.jwt_algorithm
         )
 
-        return Token(token)
+        return Token(
+            access_token=token
+        )
     
     @staticmethod
     def validate_token(
