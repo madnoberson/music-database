@@ -33,7 +33,7 @@ class UsersService:
             raise HTTPException(404)
         
         user = dict(user_record)
-        if user['id'] == self.current_user.id:
+        if self.current_user and user['id'] == self.current_user.id:
             user['is_owner'] = True
 
         return BasicUser.parse_obj(user)
@@ -54,7 +54,7 @@ class UsersService:
             raise HTTPException(404)
 
         user = dict(user_record)
-        if user['id'] == self.current_user.id:
+        if self.current_user and user['id'] == self.current_user.id:
             user['is_owner'] = True
 
         user = User.parse_obj(user)

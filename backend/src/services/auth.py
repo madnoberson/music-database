@@ -28,6 +28,8 @@ async def get_current_user(
             в токене. В случае отсутсивя токена пользовател считается гостем
         """
 
+        print(token)    
+
         if not token:
             return None
         
@@ -61,7 +63,7 @@ class AuthService:
                     RETURNING id, name
                 """
             )
-        except UniqueViolationError:
+        except UniqueViolationError as e:
             raise HTTPException(409)    
     
 
@@ -78,7 +80,7 @@ class AuthService:
         
         exception = HTTPException(
             status_code=401,
-            headers={'WWW-Authenticate'}
+            headers={'WWW-Authenticate': 'Bearer'}
         )
 
         user = await self.db_conn.fetchrow(
@@ -91,11 +93,12 @@ class AuthService:
         if not user:
             raise exception
         
-        user = dict(user).pop('password')
+        user = dict(user)
+        password = user.pop('password')
 
         if not self.verify_password(
             plain_password=user_data.password,
-            hashed_password=user['password']
+            hashed_password=password
         ):
             raise exception
         
@@ -118,7 +121,6 @@ class AuthService:
             "iat": now,
             "nbf": now,
             "exp": expires,
-            "sub": user_data.pop('id'),
             "user": user_data
         }
 

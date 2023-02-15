@@ -5,7 +5,7 @@ from asyncpg.transaction import Transaction
 
 async def get_db_conn() -> Connection:
     db_conn = await asyncpg.connect(
-        "postgresql://postgres:1234@localhost/music"
+        "postgresql://postgres:1234@localhost/test_music"
     )
     try:
         yield db_conn
@@ -41,7 +41,8 @@ async def delete_tables(
 
     await db_conn.execute(
         """
-            DROP TABLE users;
+            DROP TABLE IF EXISTS users CASCADE;
+            DROP SEQUENCE IF EXISTS users CASCADE;
         """
     )
 
