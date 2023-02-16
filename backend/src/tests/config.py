@@ -7,6 +7,12 @@ from ..services.auth import AuthService
 from ..database import create_tables, delete_tables
 
 
+user_data_in = {
+    "name": "testclient",
+    "password": "testpassword"
+}
+
+
 async def refresh_test_db():
     try:
         await delete_tables('test_music')

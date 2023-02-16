@@ -1,11 +1,14 @@
 from fastapi import Depends, HTTPException
-from asyncpg import Connection
+from asyncpg import Connection, TransactionRollbackError
 
 from ..schemas.tracks import (
     BasicTrack,
     Track,
     TrackIn,
-    TrackOut
+    TrackOut,
+    TrackUserRateIn,
+    TrackUserRateOut
+
 )
 from ..schemas.users import BasicUser
 from ..database import get_db_conn
@@ -30,11 +33,14 @@ class TracksService:
             Создаёт запись `track` в бд и возвращает её
         """
 
+        if not self.current_user:
+            raise HTTPException(401)
+
         track = await self.db_conn.fetchrow(
             f"""
                 INSERT INTO tracks (name)
                 VALUES ('{create_track.name}')
-                RETURNING id, name
+                RETURNING id, name, rate, rates_number
             """
         )
 
@@ -51,7 +57,7 @@ class TracksService:
 
         track = await self.db_conn.fetchrow(
             f"""
-                SELECT id, name FROM tracks
+                SELECT id, name, rate, rates_number FROM tracks
                 WHERE id = {track_id}
             """
         )
@@ -81,3 +87,46 @@ class TracksService:
         return TrackOut(
             track=track
         )
+    
+    async def create_track_user_rate(
+        self,
+        create_rate: TrackUserRateIn
+    ) -> TrackUserRateOut:
+        """
+            Создаёт запись `users_rates` и обновляет поля `rate`, `rates_number` у
+            записи `tracks`
+        """
+
+        if not self.current_user:
+            raise HTTPException(401)
+
+        
+        async with self.db_conn.transaction():
+            user_rate = await self.db_conn.fetchrow(
+                f"""
+                    INSERT INTO users_rates (user_id, track_id, rate)
+                    VALUES ({self.current_user.id},
+                        {create_rate.track_id},
+                        {create_rate.rate}
+                        )
+                    RETURNING rate
+                """
+            )
+
+            track_rate = await self.db_conn.fetchrow(
+                f"""
+                    SELECT rate, rates_numbers FROM tracks
+                    WHERE id = {create_rate.track_id}
+                """
+            )
+    
+        
+        track_rate, user_rate = dict(track_rate), dict(user_rate)
+
+        return TrackUserRateOut(
+            track_rate=track_rate['rate'],
+            track_rates_number=track_rate['rates_number'],
+            user_rate=user_rate['rate']
+        )
+        
+
