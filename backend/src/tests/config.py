@@ -12,6 +12,11 @@ user_data_in = {
     "password": "testpassword"
 }
 
+other_user_data_in = {
+    "name": "someclient",
+    "password": "testpassword"
+}
+
 
 async def refresh_test_db():
     try:

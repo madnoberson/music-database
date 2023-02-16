@@ -81,17 +81,18 @@ class AuthService:
             headers={'WWW-Authenticate': 'Bearer'}
         )
 
-        user = await self.db_conn.fetchrow(
+        user_record = await self.db_conn.fetchrow(
             f"""
-                SELECT id, name, password FROM users
+                SELECT id, name, password
+                FROM users
                 WHERE name = '{user_data.name}'
             """
         )
 
-        if not user:
+        if not user_record:
             raise exception
         
-        user = dict(user)
+        user = dict(user_record)
         password = user.pop('password')
 
         if not self.verify_password(

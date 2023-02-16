@@ -1,6 +1,7 @@
 from fastapi import APIRouter, Depends
 
 from ..schemas.users import BasicUser, UserOut
+from ..schemas.tracks import BasicTrack
 
 from ..services.users import UsersService
 
@@ -38,5 +39,22 @@ async def get_user(
     """
 
     return await users_service.get_user(
+        user_id=user_id
+    )
+
+
+@router.get(
+    '/users/{user_id}/rates/',
+    response_model=list[BasicTrack]
+)
+async def get_rated_tracks(
+    user_id: int,
+    users_service: UsersService = Depends()
+) -> list[BasicTrack]:
+    """
+        Возвращает информацию о треках, которые оценил пользователь
+    """
+
+    return await users_service.get_rated_tracks(
         user_id=user_id
     )

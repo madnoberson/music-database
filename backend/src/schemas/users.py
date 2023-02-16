@@ -10,21 +10,15 @@ class BasicUser(BaseModel):
 
     id: int
     name: str
-
-    rates_number: Optional[int] = None
-    is_owner: Optional[bool] = False
-
-
-class User(BaseModel):
-    """
-        Информация о пользователе
-    """
-
-    id: int
-    name: str
     rates_number: int
 
     is_owner: Optional[bool] = False
+
+
+class User(BasicUser):
+    """
+        Информация о пользователе
+    """
 
 
 class UserIn(BaseModel):

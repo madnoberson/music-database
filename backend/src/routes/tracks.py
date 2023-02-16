@@ -5,7 +5,7 @@ from ..schemas.tracks import (
     TrackIn,
     TrackOut,
     TrackUserRateIn,
-    TrackUserRateOut
+    UpdatedTrackRateOut
 )
 
 from ..services.tracks import TracksService
@@ -67,12 +67,12 @@ async def get_track(
 
 @router.post(
     '/tracks/{track_id}/rates/',
-    response_model=TrackUserRateOut
+    response_model=UpdatedTrackRateOut
 )
 async def create_track_user_rate(
     create_rate: TrackUserRateIn,
     tracks_service: TracksService = Depends()
-) -> TrackUserRateOut:
+) -> UpdatedTrackRateOut:
     """
         Создаёт оценку треку пользователем и возвращает её
     """

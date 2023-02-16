@@ -10,8 +10,11 @@ class BasicTrack(BaseModel):
 
     id: int
     name: str
-    rate: float | None
     rates_number: int
+    rate: float | None
+    user_rate: float | None
+
+    owner_rate: Optional[float] = None
 
     @validator('rate')
     def get_pretty_rate(rate: float):
@@ -19,20 +22,10 @@ class BasicTrack(BaseModel):
             return float(str(rate)[:4])
     
 
-class Track(BaseModel):
+class Track(BasicTrack):
     """
         Информация о треке
     """
-
-    id: int
-    name: str
-    rate: float | None
-    rates_number: int
-
-    @validator('rate')
-    def get_pretty_rate(rate: float):
-        if rate:
-            return float(str(rate)[:4])
 
 
 class TrackIn(BaseModel):
@@ -51,14 +44,14 @@ class TrackOut(BaseModel):
     track: Track
 
 
-class TrackUserRate(BaseModel):
+class UpdatedTrackRateOut(BaseModel):
     """
-        Информация об оценки трека пользователем
+        Вывод обновлённой ифнормации о рейтинге трека 
     """
 
-    track_rate: float
-    track_rates_number: int
-    user_rate: float
+    rates_number: int
+    rate: float | None
+    user_rate: float | None
 
 
 class TrackUserRateIn(BaseModel):
@@ -76,9 +69,6 @@ class TrackUserRateIn(BaseModel):
         raise ValidationError
 
 
-class TrackUserRateOut(TrackUserRate):
-    """
-        Вывод информации об оценке трека пользователем
-    """
+
 
 

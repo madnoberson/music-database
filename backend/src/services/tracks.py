@@ -7,8 +7,7 @@ from ..schemas.tracks import (
     TrackIn,
     TrackOut,
     TrackUserRateIn,
-    TrackUserRateOut
-
+    UpdatedTrackRateOut
 )
 from ..schemas.users import BasicUser
 from ..database import get_db_conn
@@ -40,7 +39,7 @@ class TracksService:
             f"""
                 INSERT INTO tracks (name)
                 VALUES ('{create_track.name}')
-                RETURNING id, name, rate, rates_number
+                RETURNING id, name, rate, rates_number, NULL AS user_rate
             """
         )
 
@@ -54,13 +53,24 @@ class TracksService:
         """
             Достаёт базовую информацию о треке и возвращает её
         """
-
-        track = await self.db_conn.fetchrow(
-            f"""
-                SELECT id, name, rate, rates_number FROM tracks
+        if self.current_user:
+            query = f"""
+                SELECT tracks.id, tracks.name, tracks.rate,
+                tracks.rates_number, users_rates.rate AS user_rate
+                FROM tracks
+                JOIN users_rates
+                ON users_rates.track_id = tracks.id
+                AND users_rates.user_id = {self.current_user.id}
+                WHERE tracks.id = {track_id}
+            """
+        else:
+            query = f"""
+                SELECT id, name, rate, rates_number, NULL AS user_rate
+                FROM tracks
                 WHERE id = {track_id}
             """
-        )
+
+        track = await self.db_conn.fetchrow(query)  
 
         if not track:
             raise HTTPException(404)
@@ -72,12 +82,23 @@ class TracksService:
             Достаёт информацию о треке и возвращает её
         """
 
-        track = await self.db_conn.fetchrow(
-            f"""
-                SELECT * FROM tracks
+        if self.current_user:
+            query = f"""
+                SELECT tracks.*, users_rates.rate AS user_rate
+                FROM tracks
+                JOIN users_rates
+                ON users_rates.track_id = tracks.id
+                AND users_rates.user_id = {self.current_user.id}
+                WHERE tracks.id = {track_id}
+            """
+        else:
+            query = f"""
+                SELECT *, NULL AS user_rate
+                FROM tracks
                 WHERE id = {track_id}
             """
-        )
+
+        track = await self.db_conn.fetchrow(query)
 
         if not track:
             raise HTTPException(404)
@@ -91,9 +112,9 @@ class TracksService:
     async def create_track_user_rate(
         self,
         create_rate: TrackUserRateIn
-    ) -> TrackUserRateOut:
+    ) -> UpdatedTrackRateOut:
         """
-            Создаёт запись `users_rates` и обновляет поля `rate`, `rates_number` у
+            Создаёт запись `users_rates`, обновляет поля `rate`, `rates_number` у
             записи `tracks`
         """
 
@@ -122,10 +143,9 @@ class TracksService:
     
         track_rate, user_rate = dict(track_rate), dict(user_rate)
 
-        return TrackUserRateOut(
-            track_rate=track_rate['rate'],
-            track_rates_number=track_rate['rates_number'],
+        return UpdatedTrackRateOut(
+            rate=track_rate['rate'],
+            rates_number=track_rate['rates_number'],
             user_rate=user_rate['rate']
         )
-        
 
