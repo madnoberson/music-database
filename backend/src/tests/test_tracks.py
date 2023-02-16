@@ -75,3 +75,44 @@ async def test_get_track(client: AsyncClient):
 
     assert response.status_code == 200
     assert response.json() == track_out
+
+
+@pytest.mark.anyio
+async def test_create_track_user_rate(client: AsyncClient):
+    track_user_rate_in = {
+        "track_id": 1,
+        "rate": 7
+    }
+
+    track_user_rate_out = {
+        "track_rate": 7,
+        "track_rates_number": 1,
+        "user_rate": 7
+    }
+
+    response = await client.post(
+        url='/tracks/1/rates/',
+        json=track_user_rate_in
+    )
+
+    assert response.status_code == 401
+
+    # Тест с авторизованным пользователем
+
+    response = await client.post(
+        url='/sign_in/',
+        json=user_data_in
+    )
+    access_token = response.json()['access_token']
+
+    response = await client.post(
+        url='/tracks/1/rates/',
+        json=track_user_rate_in,
+        headers={
+            "Authorization": f"Bearer {access_token}"
+        }
+    )
+
+    assert response.status_code == 200
+    assert response.json() == track_user_rate_out
+    

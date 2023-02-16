@@ -81,7 +81,7 @@ class TracksService:
 
         if not track:
             raise HTTPException(404)
-        
+
         track = Track.parse_obj(dict(track))
 
         return TrackOut(
@@ -115,12 +115,11 @@ class TracksService:
 
             track_rate = await self.db_conn.fetchrow(
                 f"""
-                    SELECT rate, rates_numbers FROM tracks
+                    SELECT rate, rates_number FROM tracks
                     WHERE id = {create_rate.track_id}
                 """
             )
     
-        
         track_rate, user_rate = dict(track_rate), dict(user_rate)
 
         return TrackUserRateOut(

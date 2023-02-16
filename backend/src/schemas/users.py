@@ -10,8 +10,8 @@ class BasicUser(BaseModel):
 
     id: int
     name: str
-    rates_number: int
 
+    rates_number: Optional[int] = None
     is_owner: Optional[bool] = False
 
 

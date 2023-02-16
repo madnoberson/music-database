@@ -28,8 +28,6 @@ async def get_current_user(
             в токене. В случае отсутсивя токена пользовател считается гостем
         """
 
-        print(token)    
-
         if not token:
             return None
         
@@ -159,7 +157,8 @@ class AuthService:
                 payload.get('user')
             )
 
-        except (JWTError, ValidationError):
+        except (JWTError, ValidationError) as e:
+            print(e)
             raise exception
         
         return user

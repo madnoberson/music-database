@@ -1,6 +1,12 @@
 from fastapi import APIRouter, Depends
 
-from ..schemas.tracks import BasicTrack, TrackIn, TrackOut
+from ..schemas.tracks import (
+    BasicTrack,
+    TrackIn,
+    TrackOut,
+    TrackUserRateIn,
+    TrackUserRateOut
+)
 
 from ..services.tracks import TracksService
 
@@ -56,4 +62,21 @@ async def get_track(
 
     return await tracks_service.get_track(
         track_id=track_id
+    )
+
+
+@router.post(
+    '/tracks/{track_id}/rates/',
+    response_model=TrackUserRateOut
+)
+async def create_track_user_rate(
+    create_rate: TrackUserRateIn,
+    tracks_service: TracksService = Depends()
+) -> TrackUserRateOut:
+    """
+        Создаёт оценку треку пользователем и возвращает её
+    """
+
+    return await tracks_service.create_track_user_rate(
+        create_rate=create_rate
     )

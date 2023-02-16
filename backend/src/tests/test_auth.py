@@ -1,7 +1,7 @@
 import pytest
 
 from httpx import AsyncClient
-from .config import client, anyio_backend, refresh_test_db
+from .config import client, anyio_backend, refresh_test_db, user_data_in
 
 
 @pytest.mark.anyio
@@ -10,10 +10,7 @@ async def test_sign_up(client: AsyncClient):
 
     response = await client.post(
         url='/sign_up/',
-        json={
-            "name": "testclient",
-            "password": "testpassword"
-        }
+        json=user_data_in
     )
 
     assert response.status_code == 200
@@ -23,10 +20,7 @@ async def test_sign_up(client: AsyncClient):
 async def test_sign_in(client: AsyncClient):
     response = await client.post(
         url='/sign_in/',
-        json={
-            "name": "testclient",
-            "password": "testpassword"
-        }
+        json=user_data_in
     )
 
     assert response.status_code == 200

@@ -10,12 +10,13 @@ class BasicTrack(BaseModel):
 
     id: int
     name: str
-    rate: Optional[float]
+    rate: float | None
     rates_number: int
 
     @validator('rate')
     def get_pretty_rate(rate: float):
-        return float(str(rate)[:4])
+        if rate:
+            return float(str(rate)[:4])
     
 
 class Track(BaseModel):
@@ -25,12 +26,13 @@ class Track(BaseModel):
 
     id: int
     name: str
-    rate: Optional[float]
+    rate: float | None
     rates_number: int
 
     @validator('rate')
     def get_pretty_rate(rate: float):
-        return float(str(rate)[:4])
+        if rate:
+            return float(str(rate)[:4])
 
 
 class TrackIn(BaseModel):

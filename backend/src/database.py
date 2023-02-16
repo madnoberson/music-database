@@ -1,6 +1,5 @@
 import asyncpg
 from asyncpg import Connection
-from asyncpg.transaction import Transaction
 
 
 async def get_db_conn() -> Connection:
@@ -36,8 +35,8 @@ async def create_tables(
                     rates_number INTEGER DEFAULT 0
                 );
                 CREATE TABLE IF NOT EXISTS users_rates (
-                    user_id INTEGER references(users.id),
-                    track_id INTEGER references(tracks.id),
+                    user_id INTEGER REFERENCES users (id),
+                    track_id INTEGER REFERENCES tracks (id),
                     rate DOUBLE PRECISION NOT NULL
                 );
             """
@@ -45,32 +44,33 @@ async def create_tables(
 
         await db_conn.execute(
             """
-                CREATE OR REPLACE FUNCTION update_track_rate() RETURNS TRIGGER $update_track_rate$
+                CREATE OR REPLACE FUNCTION update_track_rate() RETURNS TRIGGER AS $update_track_rate$
                     -- Обновляет рейтинг трека с учетом новой оценки трека пользователем --
                     BEGIN
-                        IF (TG_OP == 'DELETE') THEN
+                        IF (TG_OP = 'DELETE') THEN
                             UPDATE tracks
                             SET rate = 
-                                    CASE rates_number
+                                    CASE tracks.rates_number
                                         WHEN 1 THEN NULL
                                         ELSE ((tracks.rate * tracks.rates_number) - OLD.rate) * (tracks.rates_number - 1)
                                     END,
                                 rates_number = tracks.rates_number - 1
                             WHERE tracks.id = OLD.track_id;
-                        ELSIF (TG_OP == 'UPDATE') THEN
+                        ELSIF (TG_OP = 'UPDATE') THEN
                             UPDATE tracks
                             SET rate = ((tracks.rate * tracks.rates_number) - OLD.rate + NEW.rate) * tracks.rates_number
                             WHERE tracks.id = OLD.track_id;
-                        ELSIF (TG_OP == 'INSERT') THEN
+                        ELSIF (TG_OP = 'INSERT') THEN
                             UPDATE tracks
                             SET rate =
-                                CASE tracks.rate
-                                    WHEN NULL THEN NEW.rate
+                                CASE
+                                    WHEN tracks.rate is NULL THEN NEW.rate
                                     ELSE ((tracks.rate * tracks.rates_number) + NEW.rate) * (tracks.rates_number + 1)
                                 END,
                                 rates_number = tracks.rates_number + 1
                             WHERE tracks.id = NEW.track_id;     
                         END IF;
+                        RETURN NEW;
                     END;
                 $update_track_rate$ LANGUAGE plpgsql;
 
@@ -89,7 +89,7 @@ async def delete_tables(
 
     await db_conn.execute(
         """
-            DROP TABLE IF EXISTS users, tracks CASCADE;
+            DROP TABLE IF EXISTS users, tracks, users_rates CASCADE;
             DROP SEQUENCE IF EXISTS users, tracks CASCADE;
         """
     )
@@ -97,4 +97,4 @@ async def delete_tables(
 
 if __name__ == "__main__":
     import asyncio
-    asyncio.run(create_tables('music'))
+    asyncio.run(create_tables('test_music'))
