@@ -25,7 +25,7 @@ class UsersService:
 
         user_record = await self.db_conn.fetchrow(
             f"""
-                SELECT id, name, rates_number
+                SELECT id, name
                 FROM users
                 WHERE id = {user_id}
             """
@@ -100,8 +100,8 @@ class UsersService:
         elif not self.current_user:
             query = f"""
                 SELECT tracks.id, tracks.name, tracks.rate,
-                tracks.rates_number, owner_rates.rate AS owner_rate, NULL AS user_rate
-                FROM users_rates as owner_rates
+                tracks.rates_number, users_rates.rate AS owner_rate, NULL AS user_rate
+                FROM users_rates
                 JOIN tracks
                 ON tracks.id = users_rates.track_id
                 WHERE users_rates.user_id = {user_id}

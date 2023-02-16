@@ -52,20 +52,20 @@ async def create_tables(
                             SET rate = 
                                     CASE tracks.rates_number
                                         WHEN 1 THEN NULL
-                                        ELSE ((tracks.rate * tracks.rates_number) - OLD.rate) * (tracks.rates_number - 1)
+                                        ELSE ((tracks.rate * tracks.rates_number) - OLD.rate) / (tracks.rates_number - 1)
                                     END,
                                 rates_number = tracks.rates_number - 1
                             WHERE tracks.id = OLD.track_id;
                         ELSIF (TG_OP = 'UPDATE') THEN
                             UPDATE tracks
-                            SET rate = ((tracks.rate * tracks.rates_number) - OLD.rate + NEW.rate) * tracks.rates_number
+                            SET rate = ((tracks.rate * tracks.rates_number) - OLD.rate + NEW.rate) / tracks.rates_number
                             WHERE tracks.id = OLD.track_id;
                         ELSIF (TG_OP = 'INSERT') THEN
                             UPDATE tracks
                             SET rate =
                                 CASE
                                     WHEN tracks.rate is NULL THEN NEW.rate
-                                    ELSE ((tracks.rate * tracks.rates_number) + NEW.rate) * (tracks.rates_number + 1)
+                                    ELSE ((tracks.rate * tracks.rates_number) + NEW.rate) / (tracks.rates_number + 1)
                                 END,
                                 rates_number = tracks.rates_number + 1
                             WHERE tracks.id = NEW.track_id;     

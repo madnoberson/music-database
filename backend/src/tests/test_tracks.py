@@ -76,6 +76,8 @@ async def test_get_track(client: AsyncClient):
         url='/tracks/1/',
     )
 
+    print(response.json())
+
     assert response.status_code == 200
     assert response.json() == track_out
 
@@ -178,7 +180,7 @@ async def test_get_user_rated_tracks(client: AsyncClient):
     )
 
     assert response.status_code == 200
-    assert response.json() == user_rated_tracks_out
+    assert response.json() == [user_rated_tracks_out]
 
     #/////////////////////////////////////////////
     #/// Тест с авторизованным пользователем /////
@@ -209,7 +211,7 @@ async def test_get_user_rated_tracks(client: AsyncClient):
     )
 
     assert response.status_code == 200
-    assert response.json() == user_rated_tracks_out
+    assert response.json() == [user_rated_tracks_out]
 
     #////////////////////////////////////////////////////
     #/// Тест с другим авторизованным пользователем /////
@@ -220,8 +222,8 @@ async def test_get_user_rated_tracks(client: AsyncClient):
         "name": "heroes",
         "rate": 5.25,
         "rates_number": 2,
-        "user_rate": 7,
-        "owner_rate": 3.5
+        "user_rate": 3.5,
+        "owner_rate": 7
     }
 
     sign_in_response = await client.post(
@@ -240,5 +242,5 @@ async def test_get_user_rated_tracks(client: AsyncClient):
     )
 
     assert response.status_code == 200
-    assert response.json() == user_rated_tracks_out
+    assert response.json() == [user_rated_tracks_out]
 

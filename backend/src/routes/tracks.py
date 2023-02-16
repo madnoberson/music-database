@@ -16,7 +16,8 @@ router = APIRouter()
 
 @router.post(
     '/tracks/',
-    response_model=TrackOut
+    response_model=TrackOut,
+    response_model_exclude_unset=True
 )
 async def create_track(
     create_track: TrackIn,
@@ -33,7 +34,8 @@ async def create_track(
 
 @router.get(
     '/tracks/{track_id}/basic/',
-    response_model=BasicTrack
+    response_model=BasicTrack,
+    response_model_exclude_unset=True
 )
 async def get_basic_track(
     track_id: int,
@@ -50,7 +52,8 @@ async def get_basic_track(
 
 @router.get(
     '/tracks/{track_id}/',
-    response_model=TrackOut
+    response_model=TrackOut,
+    response_model_exclude_unset=True
 )
 async def get_track(
     track_id: int,

@@ -10,7 +10,6 @@ class BasicUser(BaseModel):
 
     id: int
     name: str
-    rates_number: int
 
     is_owner: Optional[bool] = False
 
@@ -19,6 +18,8 @@ class User(BasicUser):
     """
         Информация о пользователе
     """
+
+    rates_number: int
 
 
 class UserIn(BaseModel):
